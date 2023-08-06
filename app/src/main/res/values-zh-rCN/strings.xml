@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">IP 检测</string>
+    <string name="query">查询</string>
+    <string name="overview">概览</string>
+    <string name="settings">设置</string>
+    <string name="refresh">刷新</string>
+    <string name="device_ip">本机IP</string>
+    <string name="ip">IP 地址</string>
+    <string name="hostname">主机名</string>
+    <string name="is_anycast">是否泛播</string>
+    <string name="city">城市</string>
+    <string name="region">区域</string>
+    <string name="country">国家 / 地区</string>
+    <string name="location">经纬度</string>
+    <string name="organization">自治系统编号（ASN）</string>
+    <string name="postal">邮编</string>
+    <string name="timezone">时区</string>
+    <string name="bogon">Bogon 地址</string>
+    <string name="loading">加载中...</string>
+    <string name="warp_status">WARP 状态</string>
+    <string name="warp_basic">已连接到WARP</string>
+    <string name="warp_plus">已连接到WARP Plus</string>
+    <string name="warp_no">未连接到WARP</string>
+    <string name="get_ip_error">获取IP失败</string>
+    <string name="get_warp_error">获取WARP信息失败</string>
+</resources>
