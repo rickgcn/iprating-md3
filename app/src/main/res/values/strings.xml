@@ -16,11 +16,18 @@
     <string name="postal">Postal</string>
     <string name="timezone">Timezone</string>
     <string name="bogon">Bogon IP</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="warp_status">WARP Status</string>
     <string name="warp_basic">Connected to WARP</string>
     <string name="warp_plus">Connected to WARP Plus</string>
-    <string name="warp_no">WARP Disconnected</string>
+    <string name="warp_off">WARP Disconnected</string>
     <string name="get_ip_error">Failed to get IP Address</string>
     <string name="get_warp_error">Failed to get WARP information</string>
+    <string name="get_error">Failed to get</string>
+    <string name="confirm">Confirm</string>
+    <string name="warp_colo_center">WARP Colocation Center</string>
+    <string name="information">Information</string>
+    <string name="query_text">Query…</string>
+    <string name="true_text">Yes</string>
+    <string name="false_text">No</string>
 </resources>
