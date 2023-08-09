@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    kotlin("plugin.serialization") version "1.7.20"
 }
 
 android {
@@ -64,8 +63,6 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.6.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.4.3")
     implementation("io.ktor:ktor-client-core:2.3.3")
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
     implementation("io.ktor:ktor-client-android:2.3.3")
     implementation("io.ipinfo:ipinfo-api:2.2")
     testImplementation("junit:junit:4.13.2")
