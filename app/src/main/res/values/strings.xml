@@ -30,4 +30,6 @@
     <string name="query_text">Query…</string>
     <string name="true_text">Yes</string>
     <string name="false_text">No</string>
+    <string name="no_data">No Data</string>
+    <string name="unknown_error">Unknown Error</string>
 </resources>

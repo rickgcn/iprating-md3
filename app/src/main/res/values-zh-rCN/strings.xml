@@ -31,4 +31,6 @@
     <string name="query_text">查询…</string>
     <string name="true_text">是</string>
     <string name="false_text">否</string>
+    <string name="no_data">没有数据</string>
+    <string name="unknown_error">未知错误</string>
 </resources>

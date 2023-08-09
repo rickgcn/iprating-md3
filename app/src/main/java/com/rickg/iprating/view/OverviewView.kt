@@ -43,12 +43,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rickg.iprating.R
+import com.rickg.iprating.api.IpInfoState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OverviewView(viewModel: OverviewViewModel = viewModel()) {
-    val ipInfo by viewModel.ipInfo.observeAsState()
+    val ipInfoState by viewModel.ipInfo.observeAsState()
     val cfTrace by viewModel.cfTrace.observeAsState()
     val scope = rememberCoroutineScope()
     val openDialog = remember { mutableStateOf(false) }
@@ -56,7 +57,7 @@ fun OverviewView(viewModel: OverviewViewModel = viewModel()) {
     LaunchedEffect(Unit) {
         scope.launch {
             launch {
-                viewModel.fetchIpInfo("")
+                viewModel.fetchIpInfo()
             }
             launch {
                 viewModel.fetchCfTrace()
@@ -72,7 +73,7 @@ fun OverviewView(viewModel: OverviewViewModel = viewModel()) {
                     IconButton(onClick = {
                         scope.launch {
                             launch {
-                                viewModel.fetchIpInfo("")
+                                viewModel.fetchIpInfo()
                             }
                             launch {
                                 viewModel.fetchCfTrace()
@@ -99,10 +100,10 @@ fun OverviewView(viewModel: OverviewViewModel = viewModel()) {
                             .fillMaxWidth(),
                         shape = MaterialTheme.shapes.medium,
                         elevation = CardDefaults.cardElevation(4.dp),
-                        colors = if (ipInfo?.ip == null || ipInfo?.ip == "error") {
-                            CardDefaults.cardColors(MaterialTheme.colorScheme.error)
-                        } else {
-                            CardDefaults.cardColors(MaterialTheme.colorScheme.primary)
+                        colors = when (ipInfoState) {
+                            is IpInfoState.Loading, is IpInfoState.Success -> CardDefaults.cardColors(MaterialTheme.colorScheme.primary)
+                            is IpInfoState.Error -> CardDefaults.cardColors(MaterialTheme.colorScheme.error)
+                            null -> CardDefaults.cardColors(MaterialTheme.colorScheme.error)
                         },
                         onClick = {}
                     ) {
@@ -111,10 +112,9 @@ fun OverviewView(viewModel: OverviewViewModel = viewModel()) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = if (ipInfo?.ip == null || ipInfo?.ip == "error") {
-                                    Icons.Filled.Warning
-                                } else {
-                                    Icons.Default.CheckCircle
+                                imageVector = when (ipInfoState) {
+                                    is IpInfoState.Loading, is IpInfoState.Success -> Icons.Default.CheckCircle
+                                    is IpInfoState.Error, null -> Icons.Filled.Warning
                                 },
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onPrimary,
@@ -132,11 +132,11 @@ fun OverviewView(viewModel: OverviewViewModel = viewModel()) {
                                     modifier = Modifier.padding(top = 8.dp)
                                 )
                                 Text(
-                                    text = when (ipInfo?.ip) {
+                                    text = when (ipInfoState) {
+                                        is IpInfoState.Loading -> stringResource(id = R.string.loading)
+                                        is IpInfoState.Error -> stringResource(id = R.string.get_ip_error)
+                                        is IpInfoState.Success -> (ipInfoState as IpInfoState.Success).ipInfo.ip
                                         null -> stringResource(id = R.string.get_ip_error)
-                                        "loading" -> stringResource(id = R.string.loading)
-                                        "error" -> stringResource(id = R.string.get_ip_error)
-                                        else -> ipInfo?.ip!!
                                     },
                                     color = MaterialTheme.colorScheme.onPrimary,
                                     style = MaterialTheme.typography.bodyMedium,
@@ -214,48 +214,48 @@ fun OverviewView(viewModel: OverviewViewModel = viewModel()) {
                         ) {
                             InfoText(
                                 label = stringResource(id = R.string.ip),
-                                value = ipInfo?.ip.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.ip }
                             InfoText(
                                 label = stringResource(id = R.string.hostname),
-                                value = ipInfo?.hostname.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.hostname }
                             InfoText(
                                 label = stringResource(id = R.string.is_anycast),
-                                value = ipInfo?.anycast.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.anycast.toString() }
                             InfoText(
                                 label = stringResource(id = R.string.bogon),
-                                value = ipInfo?.bogon.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.bogon.toString() }
                             InfoText(
                                 label = stringResource(id = R.string.city),
-                                value = ipInfo?.city.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.city }
                             InfoText(
                                 label = stringResource(id = R.string.region),
-                                value = ipInfo?.region.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.region }
                             InfoText(
                                 label = stringResource(id = R.string.country),
-                                value = ipInfo?.country.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.countryCode }
                             InfoText(
                                 label = stringResource(id = R.string.location),
-                                value = ipInfo?.loc.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.location }
                             InfoText(
                                 label = stringResource(id = R.string.organization),
-                                value = ipInfo?.org.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.org }
                             InfoText(
                                 label = stringResource(id = R.string.postal),
-                                value = ipInfo?.postal.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.postal }
                             InfoText(
                                 label = stringResource(id = R.string.timezone),
-                                value = ipInfo?.timezone.toString()
-                            )
+                                value = ipInfoState
+                            ) { it.timezone }
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -265,7 +265,7 @@ fun OverviewView(viewModel: OverviewViewModel = viewModel()) {
                                 Button(onClick = {
                                     scope.launch {
                                         launch {
-                                            viewModel.fetchIpInfo("")
+                                            viewModel.fetchIpInfo()
                                         }
                                         launch {
                                             viewModel.fetchCfTrace()
@@ -340,23 +340,6 @@ fun OverviewView(viewModel: OverviewViewModel = viewModel()) {
             }
         )
     }
-}
-
-@Composable
-fun InfoText(label: String, value: String) {
-    Text(text = label, style = MaterialTheme.typography.titleMedium)
-    Spacer(modifier = Modifier.height(4.dp))
-    Text(
-        text = when (value) {
-            "null" -> "N/A"
-            "true" -> stringResource(id = R.string.true_text)
-            "false" -> stringResource(id = R.string.false_text)
-            "loading" -> stringResource(id = R.string.loading)
-            "error" -> stringResource(id = R.string.get_error)
-            else -> value
-        }, style = MaterialTheme.typography.bodyMedium
-    )
-    Spacer(modifier = Modifier.height(16.dp))
 }
 
 @Preview

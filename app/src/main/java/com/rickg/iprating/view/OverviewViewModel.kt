@@ -2,66 +2,44 @@ package com.rickg.iprating.view
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.rickg.iprating.api.CfTrace
-import com.rickg.iprating.api.IpInfo
+import com.rickg.iprating.api.IpInfoState
+import io.ipinfo.api.IPinfo
+import io.ipinfo.api.errors.ErrorResponseException
+import io.ipinfo.api.errors.RateLimitedException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
+import io.ktor.client.request.request
 import io.ktor.client.statement.bodyAsText
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class OverviewViewModel : ViewModel() {
-    val ipInfoLoading: IpInfo = IpInfo(
-        "loading",
-        "loading",
-        "loading",
-        "loading",
-        "loading",
-        "loading",
-        "loading",
-        "loading",
-        "loading",
-        "loading",
-        "loading",
-        "loading"
-    )
-    val cfTraceLoading: CfTrace = CfTrace("loading", "loading")
-
-    val ipInfo: MutableLiveData<IpInfo> = MutableLiveData()
+    val ipInfo: MutableLiveData<IpInfoState> = MutableLiveData()
     val cfTrace: MutableLiveData<CfTrace> = MutableLiveData()
+    private val cfTraceLoading: CfTrace = CfTrace("loading", "loading")
 
-    @OptIn(ExperimentalSerializationApi::class)
-    suspend fun fetchIpInfo(ip: String) {
-        ipInfo.value = ipInfoLoading
-        val httpClient = HttpClient {
-            install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                    useAlternativeNames = false
-                    explicitNulls = false
-                })
+    fun fetchIpInfo() {
+        viewModelScope.launch(Dispatchers.IO) {
+            ipInfo.postValue(IpInfoState.Loading)
+            try {
+                val client = HttpClient()
+                val deviceIP: String = client.request("https://ifconfig.me/ip").body()
+                val ipInfoObj = IPinfo.Builder().build()
+                val response = ipInfoObj.lookupIP(deviceIP)
+                ipInfo.postValue(IpInfoState.Success(response))
+            } catch (e: ErrorResponseException) {
+                // Handle Error Response
+                ipInfo.postValue(IpInfoState.Error(e.message ?: "Unknown Error"))
+            } catch (e: RateLimitedException) {
+                // Handle Rate Limited
+                ipInfo.postValue(IpInfoState.Error(e.message ?: "Unknown Error"))
+            } catch (e: Exception) {
+                // Handle all other exceptions
+                ipInfo.postValue(IpInfoState.Error(e.message ?: "Unknown Error"))
             }
-        }
-        try {
-            ipInfo.value = httpClient.get("https://ipinfo.io/$ip").body()
-        } catch (e: Exception) {
-            ipInfo.value = IpInfo(
-                "error",
-                "error",
-                "error",
-                "error",
-                "error",
-                "error",
-                "error",
-                "error",
-                "error",
-                "error",
-                "error",
-                "error"
-            )
         }
     }
 
