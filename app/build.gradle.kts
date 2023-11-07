@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.rickg.iprating"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.rickg.iprating"
         minSdk = 28
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -65,6 +65,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:2.3.3")
     implementation("io.ktor:ktor-client-android:2.3.3")
     implementation("io.ipinfo:ipinfo-api:2.2")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.33.2-alpha")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
